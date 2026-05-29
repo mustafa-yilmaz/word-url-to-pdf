@@ -18,11 +18,11 @@ This app converts public OneDrive Word direct-download URLs to PDF on demand.
 
 This version supports saved conversion links and improved OneDrive filename detection:
 
-- Create stable (unchanged) URLs (such as`yourdomain.com/pdf/abc12345`) to download (export) OneDrive Word files publicly
-- Update the source Word URL later while keeping `/pdf/abc12345` unchanged
+- Create stable (unchanged) URLs (such as `yourdomain.com/pdf/abc12345` ) to download (export) OneDrive Word files publicly
+- Update the URL of the source Word file later while keeping `yourdomain.com/pdf/abc12345` unchanged
 - Delete saved links
 - Store saved links in `data/links.json`
-- Try to detect filenames from `Content-Disposition`, redirect `Location` headers, and OneDrive “Object moved” HTML `<a href="...Document.docx?...">` links
+
 
 ## Run on macOS with Docker
 
