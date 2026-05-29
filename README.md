@@ -2,7 +2,7 @@
 
 
 <p align="center" style="bold">
-with stable (constant) URLs (links) [built through ChatGPT 5.5]   
+<b>with stable (constant) URLs (links) [built through ChatGPT 5.5] </b>  
 </p>
 
 This app converts public OneDrive Word direct-download URLs to PDF on demand.
