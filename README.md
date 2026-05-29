@@ -90,9 +90,9 @@ The app follows OneDrive redirects and preserves temporary cookies during the do
 
 
 
-## v6 security model
+## Additional security points
 
-This version is designed for online personal hosting:
+This app is designed for online personal hosting:
 
 - `/` is the private admin page when `SECRET_TOKEN` is set.
 - `/api/links`, `/links`, `/links/:id/update`, and `/links/:id/delete` are private when `SECRET_TOKEN` is set.
