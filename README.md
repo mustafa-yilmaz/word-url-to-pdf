@@ -2,7 +2,10 @@
 
 
 <p align="center" style="bold">
-<b>with stable (constant) URLs (links) [built through ChatGPT 5.5] </b>  
+<b>with stable (constant) URLs (links)</b>  
+</p>
+<p align="center" style="bold" color="red">
+<b>[built through ChatGPT 5.5]</b>  
 </p>
 
 <br>
