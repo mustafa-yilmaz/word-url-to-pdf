@@ -1,4 +1,4 @@
-# Word URL to PDF - saved stable links
+# Publicly downloadable (exportable) OneDrive Word files as PDF with stable URLs / links (built through ChatGPT 5.5) 
 
 This app converts public OneDrive Word direct-download URLs to PDF on demand.
 
