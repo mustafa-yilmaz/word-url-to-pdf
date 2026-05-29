@@ -1,9 +1,10 @@
-# Publicly downloadable (exportable) OneDrive Word files as PDF
+<h1 align="center">
+Publicly downloadable (exportable) OneDrive Word files as PDF
+</h1>
 
-
-<h2 align="center">
+<h3 align="center">
 <b>with stable (constant) URLs (links)</b>  
-</h2>
+</h3>
 <h3 align="center">
 <b>[built through ChatGPT 5.5]</b>  
 </h3>
