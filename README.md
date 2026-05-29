@@ -5,7 +5,7 @@
 </h1>
 
 <h3 align="center">
-<b>with stable (constant) URLs (links)</b>  
+<b>with stable (constant, unchanged) URLs (links)</b>  
 </h3>
 <h3 align="center">
 <b>[built through ChatGPT 5.5]</b>  
