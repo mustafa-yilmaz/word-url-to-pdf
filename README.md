@@ -82,20 +82,12 @@ Convert a saved link:
 GET /pdf/:id
 ```
 
-Temporary conversion mode from previous versions still works:
-
-```text
-GET /convert?url=<encoded-public-word-url>
-```
 
 ## Notes
 
 The app follows OneDrive redirects and preserves temporary cookies during the download. It still restricts allowed hosts to avoid becoming a general-purpose URL fetcher.
 
 
-## Filename detection
-
-The app tries to detect the original Word filename and use the same base name for the returned PDF. It checks `Content-Disposition`, redirect `Location` headers, and OneDrive “Object moved” HTML links such as `<a href="/Documents/Deneme_Dosya.docx?...">`. If no filename is detected, it keeps the existing default PDF filename behavior (`document.pdf`).
 
 
 ## v6 security model
