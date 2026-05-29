@@ -1,6 +1,10 @@
+# Publicly downloadable (exportable) OneDrive Word files as PDF
+
+
 <p align="center">
-  # Publicly downloadable (exportable) OneDrive Word files as PDF
+  
   ## with stable (constant) URLs (links) [built through ChatGPT 5.5] 
+  
 </p>
 
 This app converts public OneDrive Word direct-download URLs to PDF on demand.
