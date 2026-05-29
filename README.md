@@ -120,11 +120,4 @@ http://localhost:8081/pdf/8f4c2b9e6d1a47b98c41f0d2abcd12345678
 ```
 
 
-## v7 UI update
 
-The saved conversion links section now uses an accordion-style interface. Each link shows only the title, public PDF path, and quick Open/Copy actions at first. Expanding a link reveals the editable source Word URL, metadata, and delete action.
-
-
-## v10 UI note
-
-Each expanded saved-link card now includes an explicit **Save changes** button. Use it to save a changed title/label or source Word URL while keeping the same public PDF URL.
