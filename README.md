@@ -1,5 +1,7 @@
 <h1 align="center">
-Publicly downloadable (exportable) OneDrive Word files as PDF
+<p>Publicly </p>
+<p>downloadable (exportable) OneDrive Word files</p>
+<p>as PDF</p>
 </h1>
 
 <h3 align="center">
