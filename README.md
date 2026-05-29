@@ -1,7 +1,7 @@
 # Publicly downloadable (exportable) OneDrive Word files as PDF
 
 
-<p align="center" style="color:red">
+<p align="center">
 <b>with stable (constant) URLs (links)</b>  
 </p>
 <div align="center">
