@@ -4,9 +4,9 @@
 <p align="center" style="bold">
 <b>with stable (constant) URLs (links)</b>  
 </p>
-<p align="center" style="bold">
+<div align="center">
 <b><span style="color:red">[built through ChatGPT 5.5]</span></b>  
-</p>
+</div>
 
 <br>
 <br>
