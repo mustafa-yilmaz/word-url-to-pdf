@@ -119,5 +119,7 @@ Public PDF URLs look like:
 http://localhost:8081/pdf/8f4c2b9e6d1a47b98c41f0d2abcd12345678
 ```
 
+## Screen Shots
 
+<img width="1026" height="808" alt="Image" src="https://github.com/user-attachments/assets/44bf4b87-45bf-40d0-bc7d-e4ccfb885fff" />
 
