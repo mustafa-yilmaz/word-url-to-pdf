@@ -52,7 +52,7 @@ http://localhost:8081
 ## Optional admin token
 
 For public deployment, set `SECRET_TOKEN`.
-Management (setting) pages will require `?token=...` while PDF URLs are publicly visible.
+<br>Management (setting) pages will require `?token=...` while PDF URLs are publicly visible.
 
 <br>
 
