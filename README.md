@@ -121,13 +121,18 @@ Public PDF URLs look like:
 http://localhost:8081/pdf/8f4c2b9e6d1a47b98c41f0d2abcd12345678
 ```
 
+<br>
+<br>
+<br>
+
+
 ## Screen Shots and Usage Instructions
 
 <br>
 <br>
 <br>
 
-<b>First get the OneDrive URL (link)</b> (with the four steps shown below)
+<b>First get the OneDrive URL (link)</b> (with the four steps shown below).
 
 <br>
 <br>
@@ -159,7 +164,7 @@ http://localhost:8081/pdf/8f4c2b9e6d1a47b98c41f0d2abcd12345678
 <br>
 
 
-<b>Then paste the OneDrive link in the relevant field in the app as shown below</b>
+<b>Then paste the OneDrive link in the relevant field in the app as shown below.</b>
 
 <b>Note (Attention):</b> Do not forget to add `&download=1` at the end of the OneDrive link.
 
