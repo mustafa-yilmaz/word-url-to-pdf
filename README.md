@@ -134,6 +134,7 @@ http://localhost:8081/pdf/8f4c2b9e6d1a47b98c41f0d2abcd12345678
 <br>
 
 <b>1.</b> <br>
+<br>
 <img width="2549" height="398" alt="Image" src="https://github.com/user-attachments/assets/fa13fd96-29a9-4691-ad90-2551dccac22d" />
 <br>
 <br>
@@ -158,7 +159,7 @@ http://localhost:8081/pdf/8f4c2b9e6d1a47b98c41f0d2abcd12345678
 <br>
 
 
-<b>Paste the OneDrive link in the relevant field in the app as shown below</b>
+<b>Then paste the OneDrive link in the relevant field in the app as shown below</b>
 
 <b>Note (Attention):</b> Do not forget to add `&download=1` at the end of the OneDrive link.
 
