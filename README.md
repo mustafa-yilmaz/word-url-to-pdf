@@ -132,7 +132,7 @@ http://localhost:8081/pdf/8f4c2b9e6d1a47b98c41f0d2abcd12345678
 <br>
 <br>
 
-<b>First get the OneDrive URL (link)</b> (with the four steps shown below).
+<b>First get the OneDrive URL (link)</b> with the four steps shown below.
 
 <br>
 <br>
