@@ -125,13 +125,13 @@ http://localhost:8081/pdf/8f4c2b9e6d1a47b98c41f0d2abcd12345678
 
 <b>First get the OneDrive URL (link)</b>
 
-<img width="2549" height="398" alt="Image" src="https://github.com/user-attachments/assets/fa13fd96-29a9-4691-ad90-2551dccac22d" />
+1. <img width="2549" height="398" alt="Image" src="https://github.com/user-attachments/assets/fa13fd96-29a9-4691-ad90-2551dccac22d" />
 
-<img width="459" height="291" alt="Image" src="https://github.com/user-attachments/assets/44a3531e-f9a3-4896-8165-6daf3b265d15" />
+2. <img width="459" height="291" alt="Image" src="https://github.com/user-attachments/assets/44a3531e-f9a3-4896-8165-6daf3b265d15" />
 
-<img width="464" height="569" alt="Image" src="https://github.com/user-attachments/assets/568ce9ac-803e-4a5c-9b79-44f1d6e2d5a5" />
+3. <img width="464" height="569" alt="Image" src="https://github.com/user-attachments/assets/568ce9ac-803e-4a5c-9b79-44f1d6e2d5a5" />
 
-<img width="454" height="285" alt="Image" src="https://github.com/user-attachments/assets/ce571fb0-3760-431a-89ae-9d96626fdce1" />
+4. <img width="454" height="285" alt="Image" src="https://github.com/user-attachments/assets/ce571fb0-3760-431a-89ae-9d96626fdce1" />
 
 
 <br>
