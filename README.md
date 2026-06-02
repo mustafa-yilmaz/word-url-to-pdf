@@ -121,7 +121,27 @@ Public PDF URLs look like:
 http://localhost:8081/pdf/8f4c2b9e6d1a47b98c41f0d2abcd12345678
 ```
 
-## Screen Shots
+## Screen Shots and Usage Instructions
+
+<b>First get the OneDrive URL (link)</b>
+
+<img width="2549" height="398" alt="Image" src="https://github.com/user-attachments/assets/fa13fd96-29a9-4691-ad90-2551dccac22d" />
+
+<img width="459" height="291" alt="Image" src="https://github.com/user-attachments/assets/44a3531e-f9a3-4896-8165-6daf3b265d15" />
+
+<img width="464" height="569" alt="Image" src="https://github.com/user-attachments/assets/568ce9ac-803e-4a5c-9b79-44f1d6e2d5a5" />
+
+<img width="454" height="285" alt="Image" src="https://github.com/user-attachments/assets/ce571fb0-3760-431a-89ae-9d96626fdce1" />
+
+
+<br>
+<br>
+<br>
+
+
+<b>Paste the OneDrive link in the relevant field in the app as shown below</b>
+
+Note (Attention): Do not forget to add `&download=1` at the end of the OneDrive link.
 
 <img width="1026" height="808" alt="Image" src="https://github.com/user-attachments/assets/44bf4b87-45bf-40d0-bc7d-e4ccfb885fff" />
 
