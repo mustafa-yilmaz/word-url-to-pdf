@@ -125,12 +125,12 @@ http://localhost:8081/pdf/8f4c2b9e6d1a47b98c41f0d2abcd12345678
 
 <b>First get the OneDrive URL (link)</b> (with the four steps shown below)
 
-1. <br>
+<b>1.</b> <br>
 <img width="2549" height="398" alt="Image" src="https://github.com/user-attachments/assets/fa13fd96-29a9-4691-ad90-2551dccac22d" />
 <br>
 <br>
 
-2. <br>
+<b>2.</b> <br>
 <img width="459" height="291" alt="Image" src="https://github.com/user-attachments/assets/44a3531e-f9a3-4896-8165-6daf3b265d15" />
 <br>
 <br>
@@ -152,7 +152,7 @@ http://localhost:8081/pdf/8f4c2b9e6d1a47b98c41f0d2abcd12345678
 
 <b>Paste the OneDrive link in the relevant field in the app as shown below</b>
 
-Note (Attention): Do not forget to add `&download=1` at the end of the OneDrive link.
+<b>Note (Attention):</b> Do not forget to add `&download=1` at the end of the OneDrive link.
 
 <img width="1026" height="808" alt="Image" src="https://github.com/user-attachments/assets/44bf4b87-45bf-40d0-bc7d-e4ccfb885fff" />
 
