@@ -123,7 +123,15 @@ http://localhost:8081/pdf/8f4c2b9e6d1a47b98c41f0d2abcd12345678
 
 ## Screen Shots and Usage Instructions
 
+<br>
+<br>
+<br>
+
 <b>First get the OneDrive URL (link)</b> (with the four steps shown below)
+
+<br>
+<br>
+<br>
 
 <b>1.</b> <br>
 <img width="2549" height="398" alt="Image" src="https://github.com/user-attachments/assets/fa13fd96-29a9-4691-ad90-2551dccac22d" />
@@ -135,12 +143,12 @@ http://localhost:8081/pdf/8f4c2b9e6d1a47b98c41f0d2abcd12345678
 <br>
 <br>
 
-3. <br>
+<b>3.</b> <br>
 <img width="464" height="569" alt="Image" src="https://github.com/user-attachments/assets/568ce9ac-803e-4a5c-9b79-44f1d6e2d5a5" />
 <br>
 <br>
 
-4. <br>
+<b>4.</b> <br>
 <img width="454" height="285" alt="Image" src="https://github.com/user-attachments/assets/ce571fb0-3760-431a-89ae-9d96626fdce1" />
 
 
