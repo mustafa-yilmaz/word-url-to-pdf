@@ -13,7 +13,7 @@
 
 ----------
 
-This app aims to provide the same functionality of @Google WorkSpace (Google Drive)'s `/export?format=pdf` feature - explained <a href="https://support.google.com/a/users/answer/13004062?hl=en#share_PDF_links&zippy=%2Clearn-how:~:text=http%3A//docs.google.com/document/d/%3Cdoc_id%3E/export%3Fformat%3Dpdf" rel="nofollow">here</a> - for Microsoft 365 OneDrive files.
+This app aims to provide the same functionality of Google WorkSpace (Google Drive)'s `/export?format=pdf` feature - explained <a href="https://support.google.com/a/users/answer/13004062?hl=en#share_PDF_links&zippy=%2Clearn-how:~:text=http%3A//docs.google.com/document/d/%3Cdoc_id%3E/export%3Fformat%3Dpdf" rel="nofollow">here</a> - for Microsoft 365 OneDrive files.
 
 ----------
 
