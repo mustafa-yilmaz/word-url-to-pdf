@@ -12,12 +12,13 @@
 </h3>
 
 ----------
+
 <br>
 <br>
 <b>This app is the equivalent of Google WorkSpace - Google Drive's `/export?format=pdf` feature - explained [here](http://support.google.com/a/users/answer/13004062?hl=en#share_PDF_links&zippy=%2Clearn-how) (at "http://support.google.com/a/users/answer/13004062?hl=en#share_PDF_links&zippy=%2Clearn-how") - for Microsoft 365 OneDrive files.<b>
 <br>
 <br>
-----------
+
 <br>
 <br>
 <br>
