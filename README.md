@@ -51,7 +51,10 @@ http://localhost:8081
 
 ## Optional admin token
 
-For public deployment, set `SECRET_TOKEN`. Management (setting) pages will require `?token=...` while PDF URLs are publicly visible.
+For public deployment, set `SECRET_TOKEN`.
+Management (setting) pages will require `?token=...` while PDF URLs are publicly visible.
+
+<br>
 
 ```bash
 docker run --rm -p 8081:8080 \
