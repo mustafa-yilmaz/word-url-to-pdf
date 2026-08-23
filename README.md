@@ -104,7 +104,9 @@ GET /inspect?url=<encoded-public-word-url>
 1. This app follows OneDrive redirects and preserves temporary cookies during the download. It still restricts allowed hosts to avoid becoming a general-purpose URL fetcher.
 2. This app, via Docker, uses LibreOffice’s (not Microsoft Office’s own) rendering engine to convert OneDrive files to PDF. Therefore, some design or formatting issues may occur in the resulting PDF output.  
 
-3. <b>Known limitation for Chinese content:</b> LibreOffice selects the first face out of Noto’s `.ttc` font collection, so the embedded face is reported as the `jp` cut even for Chinese text. Glyph coverage and the serif/sans distinction are correct and the text is fully legible; a small number of characters whose shapes differ between regions (such as 直, 骨, 今) may take Japanese rather than Simplified Chinese forms. Fixing this needs Chinese fonts shipped as individual files rather than collections — `fonts-arphic-uming` and `fonts-wqy-zenhei` were evaluated and rejected, since they are `.ttc` collections too and LibreOffice would not select them.  
+3. <b>Known limitation for Chinese content:</b><br>
+<br>
+LibreOffice selects the first face out of Noto’s `.ttc` font collection, so the embedded face is reported as the `jp` cut even for Chinese text. Glyph coverage and the serif/sans distinction are correct and the text is fully legible; a small number of characters whose shapes differ between regions (such as 直, 骨, 今) may take Japanese rather than Simplified Chinese forms. Fixing this needs Chinese fonts shipped as individual files rather than collections — `fonts-arphic-uming` and `fonts-wqy-zenhei` were evaluated and rejected, since they are `.ttc` collections too and LibreOffice would not select them.  
 
 
 
