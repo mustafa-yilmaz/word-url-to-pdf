@@ -104,6 +104,8 @@ GET /inspect?url=<encoded-public-word-url>
 1. This app follows OneDrive redirects and preserves temporary cookies during the download. It still restricts allowed hosts to avoid becoming a general-purpose URL fetcher.
 2. This app, via Docker, uses LibreOffice’s (not Microsoft Office’s own) rendering engine to convert OneDrive files to PDF. Therefore, some design or formatting issues may occur in the resulting PDF output.  
 
+3. Known limitation for Chinese content: LibreOffice selects the first face out of Noto’s `.ttc` font collection, so the embedded face is reported as the `jp` cut even for Chinese text. Glyph coverage and the serif/sans distinction are correct and the text is fully legible; a small number of characters whose shapes differ between regions (such as 直, 骨, 今) may take Japanese rather than Simplified Chinese forms. Fixing this needs Chinese fonts shipped as individual files rather than collections — `fonts-arphic-uming` and `fonts-wqy-zenhei` were evaluated and rejected, since they are `.ttc` collections too and LibreOffice would not select them.  
+
 
 
 
@@ -141,140 +143,6 @@ http://localhost:8081/pdf/8f4c2b9e6d1a47b98c41f0d2abcd12345678
 <br>
 <br>
 
-
-## Mathematical formula rendering
-
-Word equations are rendered into the generated PDF. This needs the
-`libreoffice-math` package, which the `Dockerfile` installs alongside
-`libreoffice-writer`.
-
-Two kinds of equations occur in `.docx` files, and they behave differently:
-
-- **Native Word equations (OMML)** — inserted with Word's *Insert > Equation*.
-  These are fully typeset into the PDF: fractions, radicals, superscripts and
-  subscripts, n-ary operators (integrals, summations) with limits, matrices,
-  and inline equations, using the `OpenSymbol` and DejaVu math fonts already
-  present in the image.
-- **Legacy Equation Editor 3.0 / MathType objects** — stored as embedded OLE
-  objects. These are drawn from the preview bitmap Word saved with them, so
-  they do appear in the PDF, but they are not re-typeset and will not look
-  sharper than the stored preview.
-
-### Why the Math component matters
-
-Without `libreoffice-math`, LibreOffice **silently drops every equation**: it
-logs a normal success message, exits with code 0, and returns a PDF in which
-the formulas are simply absent. The exit code reveals nothing, so this can go
-unnoticed indefinitely.
-
-The app guards against that in three places:
-
-- At startup it probes for the Math component and logs
-  `Word equation rendering: enabled`, or a warning if it is missing.
-- During conversion, when the component is missing and the document contains
-  equations, it logs how many will be lost. This check runs only when the
-  component is absent, so a healthy deployment pays nothing for it.
-- `test/verify-math-rendering.sh` fails if equations stop rendering, so a
-  future image change cannot reintroduce the problem quietly.
-
-### Inspecting a document
-
-`GET /inspect/:id` and `GET /inspect?url=...` report which equations a source
-document actually contains, so a rendering problem can be diagnosed instead of
-guessed at. Both are private when `SECRET_TOKEN` is set, and both honour the
-same host allow-list as conversion. The admin page exposes this as the
-**Check formulas** action on each saved link.
-
-```text
-GET /inspect/8f4c2b9e6d1a47b98c41f0d2abcd12345678?token=...
-```
-
-```json
-{
-  "sourceFilename": "lecture-notes",
-  "format": "docx",
-  "readable": true,
-  "equations": {
-    "omml": 6,
-    "ommlDisplay": 5,
-    "ommlInline": 1,
-    "legacyEquationObjects": 0,
-    "embeddedObjects": 0
-  },
-  "images": 0,
-  "embeddedParts": [],
-  "renderability": {
-    "libreOfficeMathAvailable": true,
-    "ommlWillRender": true,
-    "ommlWillBeDropped": false,
-    "legacyRendersAsPreviewImageOnly": false
-  }
-}
-```
-
-Equation counting reads `word/document.xml` straight out of the `.docx` zip and
-adds no npm dependencies. The old binary `.doc` format cannot be inspected; the
-endpoint reports that rather than guessing.
-
-### Verifying after a change
-
-```bash
-docker build -t word-url-to-pdf . && ./test/verify-math-rendering.sh
-```
-
-See `test/README-testing.md` for the fixtures and the one-time helper image.
-
-## Chinese and CJK text rendering
-
-Chinese, Japanese and Korean text is rendered into the generated PDF. This
-needs the `fonts-noto-cjk` package plus the font mapping in
-`fontconfig/99-ms-cjk-substitutions.conf`, both installed by the `Dockerfile`.
-
-### Why this is needed
-
-The base image ships only Latin fonts (DejaVu, Liberation). None of them
-contains a single Chinese glyph, and none of the typefaces Word records for
-CJK text — SimSun/宋体, SimHei/黑体, Microsoft YaHei/微软雅黑, KaiTi/楷体,
-FangSong/仿宋 — exists in it either.
-
-The resulting failure is quiet in a way that is easy to miss. LibreOffice
-still writes every Chinese character into the PDF, so the text extracts and
-copies correctly and any text-based check passes. But no font can draw the
-characters, so the reader sees a page of empty boxes. A 33-page bilingual
-document verified during this work contained 8,419 Chinese characters, every
-one of them invisible, while its English text rendered perfectly.
-
-`fontconfig/99-ms-cjk-substitutions.conf` maps the Word CJK typefaces onto the
-installed Noto CJK faces, keeping the serif/sans distinction each document
-asks for: Song/Ming typefaces map to Noto Serif CJK, Hei typefaces to Noto
-Sans CJK. Traditional Chinese typefaces map to the TC faces and Japanese and
-Korean typefaces to their own, so those documents keep their regional glyph
-forms rather than being forced into Simplified shapes.
-
-Verified rendering: Simplified and Traditional Chinese, mixed Chinese/Latin
-runs, CJK punctuation and full-width forms, and rare characters including
-CJK Extension B.
-
-### Known limitation
-
-LibreOffice selects the first face out of Noto's `.ttc` font collection, so
-the embedded face is reported as the `jp` cut even for Chinese text. Glyph
-coverage and the serif/sans distinction are correct and the text is fully
-legible; a small number of characters whose shapes differ between regions
-(such as 直, 骨, 今) may take Japanese rather than Simplified Chinese forms.
-Fixing this needs Chinese fonts shipped as individual files rather than
-collections — `fonts-arphic-uming` and `fonts-wqy-zenhei` were evaluated and
-rejected, since they are `.ttc` collections too and LibreOffice would not
-select them.
-
-### Verifying after a change
-
-```bash
-docker build -t word-url-to-pdf . && ./test/verify-cjk-rendering.sh
-```
-
-The script fails if no CJK font is embedded in the PDF. It deliberately does
-not rely on text extraction, which succeeds even when nothing is drawn.
 
 ## Screen Shots and Usage Instructions
 
