@@ -8,9 +8,11 @@ import { randomUUID, randomBytes } from 'node:crypto';
 import { Transform } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 import { execFile } from 'node:child_process';
+import { inflateRaw } from 'node:zlib';
 import { promisify } from 'node:util';
 
 const execFileAsync = promisify(execFile);
+const inflateRawAsync = promisify(inflateRaw);
 const app = express();
 app.use(express.urlencoded({ extended: false, limit: '256kb' }));
 app.use(express.json({ limit: '256kb' }));
@@ -269,6 +271,132 @@ async function convertWordToPdf(inputPath, outputDir) {
 }
 async function cleanup(dir) { try { await fsp.rm(dir, { recursive: true, force: true }); } catch (err) { console.warn('Cleanup failed:', err.message); } }
 
+// ---------------------------------------------------------------------------
+// LibreOffice Math capability probe
+//
+// Without the Math component installed, native Word equations vanish from the
+// generated PDF and the conversion still reports success. Detecting that once
+// at startup turns silent data loss into a visible log line.
+// ---------------------------------------------------------------------------
+let mathComponentAvailable = false;
+
+async function detectMathComponent() {
+  const candidates = [
+    '/usr/lib/libreoffice/share/registry/math.xcd',
+    '/usr/lib64/libreoffice/share/registry/math.xcd',
+    '/opt/libreoffice/share/registry/math.xcd',
+  ];
+  for (const candidate of candidates) {
+    try { await fsp.access(candidate, fs.constants.R_OK); return true; } catch { /* keep looking */ }
+  }
+  return false;
+}
+
+// ---------------------------------------------------------------------------
+// Equation inspection
+//
+// A .docx is a zip. Reading word/document.xml directly tells us which kind of
+// equations a document holds, so a rendering problem can be diagnosed without
+// guessing:
+//
+//   - OMML       native Word equations (Insert > Equation). These render only
+//                when the LibreOffice Math component is present.
+//   - legacy OLE Equation Editor 3.0 / MathType objects, which render from
+//                their embedded preview image at best.
+//
+// Deliberately dependency-free: it reads just enough of the zip format to pull
+// out a single entry, which keeps the image free of a zip library.
+// ---------------------------------------------------------------------------
+function findEndOfCentralDirectory(buf) {
+  const start = Math.max(0, buf.length - 0xffff - 22);
+  for (let i = buf.length - 22; i >= start; i--) if (buf.readUInt32LE(i) === 0x06054b50) return i;
+  return -1;
+}
+function readZipEntries(buf) {
+  const eocd = findEndOfCentralDirectory(buf);
+  if (eocd < 0) return null;
+  const entryCount = buf.readUInt16LE(eocd + 10);
+  let offset = buf.readUInt32LE(eocd + 16);
+  if (offset === 0xffffffff) return null; // zip64, not expected for .docx
+  const entries = [];
+  for (let i = 0; i < entryCount; i++) {
+    if (offset + 46 > buf.length || buf.readUInt32LE(offset) !== 0x02014b50) break;
+    const nameLength = buf.readUInt16LE(offset + 28);
+    entries.push({
+      name: buf.toString('utf8', offset + 46, offset + 46 + nameLength),
+      method: buf.readUInt16LE(offset + 10),
+      compressedSize: buf.readUInt32LE(offset + 20),
+      localOffset: buf.readUInt32LE(offset + 42),
+    });
+    offset += 46 + nameLength + buf.readUInt16LE(offset + 30) + buf.readUInt16LE(offset + 32);
+  }
+  return entries;
+}
+async function readZipEntryText(buf, entry) {
+  if (entry.localOffset + 30 > buf.length || buf.readUInt32LE(entry.localOffset) !== 0x04034b50) return '';
+  const dataStart = entry.localOffset + 30 + buf.readUInt16LE(entry.localOffset + 26) + buf.readUInt16LE(entry.localOffset + 28);
+  const data = buf.subarray(dataStart, dataStart + entry.compressedSize);
+  if (entry.method === 0) return data.toString('utf8');
+  if (entry.method === 8) return (await inflateRawAsync(data)).toString('utf8');
+  return '';
+}
+function countMatches(text, pattern) { const found = text.match(pattern); return found ? found.length : 0; }
+
+async function inspectDocxEquations(inputPath) {
+  if (path.extname(inputPath).toLowerCase() === '.doc') {
+    return { format: 'doc', readable: false, note: 'Legacy binary .doc files cannot be inspected. Save the source as .docx to get equation counts.' };
+  }
+  let buf;
+  try { buf = await fsp.readFile(inputPath); }
+  catch (err) { return { format: 'unknown', readable: false, note: `Could not read the downloaded file: ${err.message}` }; }
+
+  const entries = readZipEntries(buf);
+  if (!entries) return { format: 'unknown', readable: false, note: 'The downloaded file is not a readable .docx (Office Open XML) package.' };
+  const documentEntry = entries.find(entry => entry.name === 'word/document.xml');
+  if (!documentEntry) return { format: 'unknown', readable: false, note: 'No word/document.xml part was found in the package.' };
+
+  const xml = await readZipEntryText(buf, documentEntry);
+  // <m:oMathPara> only wraps a display equation, so the trailing character
+  // class keeps it from being counted as an equation of its own.
+  const omml = countMatches(xml, /<m:oMath[\s>]/g);
+  const ommlDisplay = countMatches(xml, /<m:oMathPara[\s>]/g);
+  const legacyEquationObjects = countMatches(xml, /ProgID="(?:Equation|MathType)[^"]*"/g);
+
+  return {
+    format: 'docx',
+    readable: true,
+    equations: {
+      omml,
+      ommlDisplay,
+      ommlInline: Math.max(0, omml - ommlDisplay),
+      legacyEquationObjects,
+      embeddedObjects: countMatches(xml, /<w:object[\s>]/g),
+    },
+    images: countMatches(xml, /<w:drawing[\s>]/g),
+    embeddedParts: entries.filter(entry => entry.name.startsWith('word/embeddings/')).map(entry => entry.name),
+    renderability: {
+      libreOfficeMathAvailable: mathComponentAvailable,
+      ommlWillRender: omml === 0 || mathComponentAvailable,
+      ommlWillBeDropped: omml > 0 && !mathComponentAvailable,
+      legacyRendersAsPreviewImageOnly: legacyEquationObjects > 0,
+    },
+  };
+}
+
+async function inspectRemoteWordFile(rawUrl) {
+  const validation = isAllowedPublicUrl(rawUrl);
+  if (!validation.ok) return { error: validation.message };
+  const workDir = path.join(os.tmpdir(), `word-url-to-pdf-inspect-${randomUUID()}`);
+  await fsp.mkdir(workDir, { recursive: true });
+  try {
+    const { inputPath, detectedBaseName } = await downloadSourceFile(rawUrl, workDir);
+    const inspection = await inspectDocxEquations(inputPath);
+    return { sourceFilename: detectedBaseName || path.basename(inputPath), ...inspection };
+  } finally {
+    await cleanup(workDir);
+  }
+}
+
 function renderHome(req, links, message = '') {
   const origin = `${req.protocol}://${req.get('host')}`;
   const token = typeof req.query.token === 'string' ? req.query.token : '';
@@ -307,7 +435,8 @@ function renderHome(req, links, message = '') {
         <div class="form-actions split-actions">
           <div class="left-actions">
             <button class="save-button" type="submit" form="update-${htmlEscape(link.id)}">Save changes</button>
-            <span class="inline-help">Saves the title/label and source Word URL while keeping the same public PDF URL.</span>
+            <a class="small-button secondary" target="_blank" href="/inspect/${htmlEscape(link.id)}${tokenQuery}">Check formulas</a>
+            <span class="inline-help">Saves the title/label and source Word URL while keeping the same public PDF URL. "Check formulas" reports the equations found in the source document.</span>
           </div>
           <button class="danger" type="submit" form="delete-${htmlEscape(link.id)}">Delete saved link</button>
         </div>
@@ -520,6 +649,14 @@ async function serveConversion(rawUrl, res) {
   await fsp.mkdir(workDir, { recursive: true });
   try {
     const { inputPath, detectedBaseName } = await downloadSourceFile(rawUrl, workDir);
+    // Only inspect when the renderer cannot draw equations, so healthy
+    // deployments never pay the cost of re-reading the file.
+    if (!mathComponentAvailable) {
+      const inspection = await inspectDocxEquations(inputPath).catch(() => null);
+      if (inspection?.equations?.omml > 0) {
+        console.warn(`Math warning: ${inspection.equations.omml} Word equation(s) in this document will be missing from the PDF because the LibreOffice Math component is not installed. Add "libreoffice-math" to the image.`);
+      }
+    }
     const pdfPath = await convertWordToPdf(inputPath, workDir);
     const downloadName = detectedBaseName ? sanitizeFilename(`${detectedBaseName}.pdf`, 'converted.pdf') : 'document.pdf';
     res.setHeader('Content-Type', 'application/pdf');
@@ -577,11 +714,30 @@ app.get('/convert', async (req, res) => {
   await serveConversion(rawUrl, res);
 });
 
+app.get('/inspect/:id', async (req, res) => {
+  if (SECRET_TOKEN && !checkToken(req, res)) return;
+  const result = await getLinkOr404(req.params.id, res); if (!result) return;
+  try { res.json(await inspectRemoteWordFile(result.link.url)); }
+  catch (err) { console.error(err); res.status(500).json({ error: err.message }); }
+});
+
+app.get('/inspect', async (req, res) => {
+  if (SECRET_TOKEN && !checkToken(req, res)) return;
+  const rawUrl = req.query.url;
+  if (!rawUrl || typeof rawUrl !== 'string') return res.status(400).json({ error: 'Missing url parameter.' });
+  try { res.json(await inspectRemoteWordFile(rawUrl)); }
+  catch (err) { console.error(err); res.status(500).json({ error: err.message }); }
+});
+
 app.get('/healthz', (req, res) => res.type('text/plain').send('ok'));
 
-ensureStore().then(() => {
+ensureStore().then(async () => {
+  mathComponentAvailable = await detectMathComponent();
+  if (!mathComponentAvailable) {
+    console.warn('WARNING: the LibreOffice Math component was not found. Native Word equations (OMML) will be silently dropped from generated PDFs. Install the "libreoffice-math" package.');
+  }
   app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Word URL to PDF service listening on port ${PORT}. Data file: ${STORE_PATH}`);
+    console.log(`Word URL to PDF service listening on port ${PORT}. Data file: ${STORE_PATH}. Word equation rendering: ${mathComponentAvailable ? 'enabled' : 'UNAVAILABLE'}.`);
   });
 }).catch(err => {
   console.error("Could not initialize data store:", err);

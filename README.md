@@ -91,6 +91,13 @@ Convert a saved link:
 GET /pdf/:id
 ```
 
+Report the mathematical formulas found in a source document:
+
+```text
+GET /inspect/:id
+GET /inspect?url=<encoded-public-word-url>
+```
+
 
 ## Notes
 
@@ -134,6 +141,88 @@ http://localhost:8081/pdf/8f4c2b9e6d1a47b98c41f0d2abcd12345678
 <br>
 <br>
 
+
+## Mathematical formula rendering
+
+Word equations are rendered into the generated PDF. This needs the
+`libreoffice-math` package, which the `Dockerfile` installs alongside
+`libreoffice-writer`.
+
+Two kinds of equations occur in `.docx` files, and they behave differently:
+
+- **Native Word equations (OMML)** — inserted with Word's *Insert > Equation*.
+  These are fully typeset into the PDF: fractions, radicals, superscripts and
+  subscripts, n-ary operators (integrals, summations) with limits, matrices,
+  and inline equations, using the `OpenSymbol` and DejaVu math fonts already
+  present in the image.
+- **Legacy Equation Editor 3.0 / MathType objects** — stored as embedded OLE
+  objects. These are drawn from the preview bitmap Word saved with them, so
+  they do appear in the PDF, but they are not re-typeset and will not look
+  sharper than the stored preview.
+
+### Why the Math component matters
+
+Without `libreoffice-math`, LibreOffice **silently drops every equation**: it
+logs a normal success message, exits with code 0, and returns a PDF in which
+the formulas are simply absent. The exit code reveals nothing, so this can go
+unnoticed indefinitely.
+
+The app guards against that in three places:
+
+- At startup it probes for the Math component and logs
+  `Word equation rendering: enabled`, or a warning if it is missing.
+- During conversion, when the component is missing and the document contains
+  equations, it logs how many will be lost. This check runs only when the
+  component is absent, so a healthy deployment pays nothing for it.
+- `test/verify-math-rendering.sh` fails if equations stop rendering, so a
+  future image change cannot reintroduce the problem quietly.
+
+### Inspecting a document
+
+`GET /inspect/:id` and `GET /inspect?url=...` report which equations a source
+document actually contains, so a rendering problem can be diagnosed instead of
+guessed at. Both are private when `SECRET_TOKEN` is set, and both honour the
+same host allow-list as conversion. The admin page exposes this as the
+**Check formulas** action on each saved link.
+
+```text
+GET /inspect/8f4c2b9e6d1a47b98c41f0d2abcd12345678?token=...
+```
+
+```json
+{
+  "sourceFilename": "lecture-notes",
+  "format": "docx",
+  "readable": true,
+  "equations": {
+    "omml": 6,
+    "ommlDisplay": 5,
+    "ommlInline": 1,
+    "legacyEquationObjects": 0,
+    "embeddedObjects": 0
+  },
+  "images": 0,
+  "embeddedParts": [],
+  "renderability": {
+    "libreOfficeMathAvailable": true,
+    "ommlWillRender": true,
+    "ommlWillBeDropped": false,
+    "legacyRendersAsPreviewImageOnly": false
+  }
+}
+```
+
+Equation counting reads `word/document.xml` straight out of the `.docx` zip and
+adds no npm dependencies. The old binary `.doc` format cannot be inspected; the
+endpoint reports that rather than guessing.
+
+### Verifying after a change
+
+```bash
+docker build -t word-url-to-pdf . && ./test/verify-math-rendering.sh
+```
+
+See `test/README-testing.md` for the fixtures and the one-time helper image.
 
 ## Screen Shots and Usage Instructions
 
