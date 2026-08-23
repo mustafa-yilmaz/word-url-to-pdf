@@ -224,6 +224,58 @@ docker build -t word-url-to-pdf . && ./test/verify-math-rendering.sh
 
 See `test/README-testing.md` for the fixtures and the one-time helper image.
 
+## Chinese and CJK text rendering
+
+Chinese, Japanese and Korean text is rendered into the generated PDF. This
+needs the `fonts-noto-cjk` package plus the font mapping in
+`fontconfig/99-ms-cjk-substitutions.conf`, both installed by the `Dockerfile`.
+
+### Why this is needed
+
+The base image ships only Latin fonts (DejaVu, Liberation). None of them
+contains a single Chinese glyph, and none of the typefaces Word records for
+CJK text — SimSun/宋体, SimHei/黑体, Microsoft YaHei/微软雅黑, KaiTi/楷体,
+FangSong/仿宋 — exists in it either.
+
+The resulting failure is quiet in a way that is easy to miss. LibreOffice
+still writes every Chinese character into the PDF, so the text extracts and
+copies correctly and any text-based check passes. But no font can draw the
+characters, so the reader sees a page of empty boxes. A 33-page bilingual
+document verified during this work contained 8,419 Chinese characters, every
+one of them invisible, while its English text rendered perfectly.
+
+`fontconfig/99-ms-cjk-substitutions.conf` maps the Word CJK typefaces onto the
+installed Noto CJK faces, keeping the serif/sans distinction each document
+asks for: Song/Ming typefaces map to Noto Serif CJK, Hei typefaces to Noto
+Sans CJK. Traditional Chinese typefaces map to the TC faces and Japanese and
+Korean typefaces to their own, so those documents keep their regional glyph
+forms rather than being forced into Simplified shapes.
+
+Verified rendering: Simplified and Traditional Chinese, mixed Chinese/Latin
+runs, CJK punctuation and full-width forms, and rare characters including
+CJK Extension B.
+
+### Known limitation
+
+LibreOffice selects the first face out of Noto's `.ttc` font collection, so
+the embedded face is reported as the `jp` cut even for Chinese text. Glyph
+coverage and the serif/sans distinction are correct and the text is fully
+legible; a small number of characters whose shapes differ between regions
+(such as 直, 骨, 今) may take Japanese rather than Simplified Chinese forms.
+Fixing this needs Chinese fonts shipped as individual files rather than
+collections — `fonts-arphic-uming` and `fonts-wqy-zenhei` were evaluated and
+rejected, since they are `.ttc` collections too and LibreOffice would not
+select them.
+
+### Verifying after a change
+
+```bash
+docker build -t word-url-to-pdf . && ./test/verify-cjk-rendering.sh
+```
+
+The script fails if no CJK font is embedded in the PDF. It deliberately does
+not rely on text extraction, which succeeds even when nothing is drawn.
+
 ## Screen Shots and Usage Instructions
 
 <br>
